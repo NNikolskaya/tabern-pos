@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#19342d">
+  <title>Керування меню · Pop-up orders</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/event_context.js"></script>
+  <script defer src="/admin.js"></script>
+</head>
+<body data-page="admin">
+  <header class="topbar"><div><strong>Керування меню</strong><span id="current-event" class="event-banner">Подія: завантаження…</span></div><div class="top-actions"><span id="connection" class="connection checking">Підключення…</span><a href="/">До чеків</a></div></header>
+  <div id="network-hint" class="network-hint"></div>
+  <main class="admin-layout">
+    <section class="panel admin-events">
+      <div class="panel-heading"><div><p class="eyebrow">Поточна подія</p><h1 id="selected-event-name">Завантаження…</h1></div></div>
+      <form id="event-form" class="event-form">
+        <div><label for="event-name">Назва події</label><input id="event-name" maxlength="100" required autocomplete="off" placeholder="Наприклад, Kabak — 2026-10-10"></div>
+        <div><label for="event-date">Дата (необов’язково)</label><input id="event-date" type="date"></div>
+        <label class="checkbox-row"><input id="event-enabled" type="checkbox" checked> Доступна для вибору</label>
+        <div class="form-actions"><button id="save-event" class="primary" type="submit">Створити подію</button><button id="cancel-event" class="secondary hidden" type="button">Скасувати</button></div>
+      </form>
+      <p id="event-message" class="message" role="status"></p>
+      <div id="event-list" class="event-list"><p class="muted">Завантаження подій…</p></div>
+    </section>
+    <section class="panel">
+      <p class="eyebrow">Позиції</p><h1 id="form-heading">Додати позицію</h1>
+      <form id="item-form">
+        <label for="item-name">Назва</label><input id="item-name" name="name" maxlength="100" required autocomplete="off" placeholder="Наприклад, Флет вайт">
+        <label for="item-price">Ціна</label><input id="item-price" name="price" type="number" min="0" max="1000000" step="0.01" required inputmode="decimal" placeholder="0.00">
+        <label for="item-category">Розділ</label><select id="item-category" name="category_id"><option value="">Корінь меню</option></select>
+        <label for="item-station">Готує</label><select id="item-station" required><option value="KITCHEN">Кухня</option><option value="BAR">Бар</option></select>
+        <label for="item-image">Фото страви</label><input id="item-image" type="file" accept="image/jpeg,image/png,image/webp">
+        <button id="remove-image" class="text-button hidden" type="button">Прибрати фото</button>
+        <label class="checkbox-row"><input id="item-enabled" type="checkbox" checked> Доступна для замовлень</label>
+        <div class="form-actions"><button id="save-item" class="primary" type="submit">Додати позицію</button><button id="cancel-edit" class="secondary hidden" type="button">Скасувати</button></div>
+        <p id="admin-message" class="message" role="status"></p>
+      </form>
+    </section>
+    <section class="panel">
+      <p class="eyebrow">Структура</p><h1 id="category-form-heading">Додати розділ</h1>
+      <form id="category-form">
+        <label for="category-name">Назва розділу</label><input id="category-name" maxlength="100" required autocomplete="off" placeholder="Наприклад, Кава">
+        <label for="category-parent">У розділі</label><select id="category-parent"><option value="">Корінь меню</option></select>
+        <label for="category-image">Картинка розділу</label><input id="category-image" type="file" accept="image/jpeg,image/png,image/webp">
+        <button id="remove-category-image" class="text-button hidden" type="button">Прибрати картинку</button>
+        <div class="form-actions"><button id="save-category" class="primary" type="submit">Додати розділ</button><button id="cancel-category" class="secondary hidden" type="button">Скасувати</button></div>
+        <p id="category-message" class="message" role="status"></p>
+      </form>
+    </section>
+    <section class="panel admin-overview"><div class="panel-heading"><h2>Дерево меню</h2><span id="admin-count" class="muted"></span></div><div id="admin-items" class="admin-items"><p class="muted">Завантаження меню…</p></div><p class="hint">Позиції можна розміщувати в корені або в будь-якому розділі. Вимкнена позиція зникає з нових чеків; старі чеки зберігають свою ціну.</p></section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Pop-up orders
+
+A small LAN-first order desk for a temporary bar or cafe. One laptop runs the server and stores everything in SQLite. Phones and tablets use their normal browsers. The app has no cloud services, CDNs, build step, or Python package dependencies.
+
+For maintainers and future Codex sessions, [docs/PROJECT.md](docs/PROJECT.md) records the current architecture, schema and API, design decisions, verified behavior, limitations, and remaining pre-event work.
+
+To connect an AI agent for Event-scoped menu imports, use [the Claude, ChatGPT, and Hermes MCP setup guide](docs/MCP_CLIENTS.md), then follow [the import sequence](docs/MCP.md).
+
+## Start at the event
+
+1. Connect the laptop and operator devices to the **same local Wi-Fi**. An ordinary router or hotspot works; Internet is unnecessary.
+2. On the laptop, install Python 3.9 or newer **before the event** if it is not already installed.
+3. In this directory run:
+
+   ```sh
+   python3 app.py
+   ```
+
+4. The terminal prints the address and a QR code for other devices, for example `http://192.168.1.25:8080/`. Scan the QR code or type the address on each device. The page also shows the address. Do not use `localhost` on a phone; that points to the phone itself.
+5. Open `/admin`, create the Event for this deployment, and press **Обрати**. The chosen Event appears at the top of every screen. Build its menu there: every item needs an explicit **Кухня** or **Бар** station; section images and dish photos are optional. Open `/` or `/reception` for order entry and payment, `/kitchen` for kitchen fulfillment, and `/bar` for bar fulfillment, order creation, and payment. **Адмінка** is also linked in the header of each operational view.
+6. Leave the laptop awake and the terminal running for the event. Press Ctrl+C to stop. After changing `app.py`, stop and restart this Python process; reloading a browser does not reload server code.
+
+Data is stored in one `data/orders.sqlite3` on the laptop, including all Events, menus, photos, and orders. Back up the `data` directory after stopping the server. Never delete it if you need the orders. The app automatically creates it on first start. An older database is migrated into a default **Поточна подія** Event; rename it in Admin if appropriate.
+
+## How it works
+
+- The host is the single authority. One Python process serves local HTML/CSS/JavaScript and stores Events, menus, and orders in SQLite. Exactly one Event is selected for all operators. Browsers poll it every 2.5 seconds and on wake/reconnect; changing the Event switches all views to its menu and orders. A stale browser edit is rejected. WAN connectivity has no role in core operation.
+- The menu is a tree. Admin starts with its sections collapsed; tap an arrow to show a section's contents. A position can sit at the root or any section depth. Reception and Bar use a full-size **Назад** tile to return one level; sections can have their own uploaded images. Reception and Bar can create a check by selecting the first position; further changes save automatically. Each order has a comment of up to 40 characters, visible in the check, Reception's list, and even collapsed Kitchen/Bar cards. Bar has separate **Створити замовлення** and **Видача** tabs. Entering **Створити замовлення** prepares a blank check; tapping a collapsed unpaid order card expands it, and tapping the expanded card opens that check for editing. The Bar check also has **Видати** on saved lines and **Оплатити** for the order. An additional serving of an issued item becomes a new, unissued line. Menu tiles have a fixed size, showing an uploaded dish photo or a local default image. Reception shows which items have been issued; issued lines cannot be changed or removed until returned to unissued. A paid order cannot be edited in Reception or Bar until payment is cancelled. Kitchen and Bar show each relevant order as one card under **Не видано** while any item assigned to that station remains unissued. Station cards start collapsed at tile width with item names and quantities; tap a card to expand it. **Видати все** issues that station's remaining lines in one action. **Видати** and **Оплатити** act in one tap and show a seven-second **Скасувати** snackbar. Issued lines can also be returned to unissued later, and paid orders can be returned to unpaid. Payment and fulfillment remain independent.
+- On phones, Reception places equal-size **+ Новий чек** and **До чека** buttons side by side above the menu tiles; **До чека** also shows the current total. It scrolls to the receipt, and **↑ Вгору** at the end of the receipt returns to the top. The mobile **Меню** heading is hidden in Reception and Bar order entry, and Reception does not show a menu-item count at any screen size. On wider screens, **+ Новий чек** stays in the receipt area. The online indicator says **Підключено**; when disconnected it says **Немає з’єднання · повторюємо**.
+- Prices display in UAH (₴). **Оплачено** records the operator's confirmation only; there is no payment processing or fiscal receipt. No login is provided, so use a private event Wi-Fi network.
+- A browser can temporarily hold an unconfirmed edit while the host is unreachable, but the host database is authoritative. Keep the host powered on. See [the technical guide](docs/PROJECT.md) for recovery rules and limitations.
+
+## Pre-event check
+
+1. Run `python3 -m unittest discover -s tests -v`.
+2. In `/admin`, create and select the correct Event. Confirm its name appears in Reception, Kitchen, and Bar. If using an AI agent to import a source menu, follow [the MCP import guide](docs/MCP.md): read this Event's menu, preview changes, confirm the preview, and import with its explicit Event ID.
+3. Start the app and add a section, a subsection, and items at the root and at both section levels through `/admin`. Confirm the tree initially shows collapsed sections, arrows expand/collapse them, long names use the available row width, and **Змінити** on an item scrolls to its item form.
+4. With three devices on the same Wi-Fi, open `/reception`, `/kitchen`, and `/bar`. Create a mixed kitchen/bar order at Reception with a comment. Confirm each station sees one collapsed tile under **Не видано**, with the comment, names, and quantities visible; tap it to expand and verify both lines and their states. Confirm the comment also appears in Reception's order list and Bar's entry check. Edit an unissued quantity and confirm the total updates without pressing Save. Mark the order paid: item and comment editing must lock. Cancel payment: editing must unlock. On Bar, switch to **Створити замовлення** and confirm it starts blank; create another order, issue a line and mark the check paid there, then return to **Видача**. Expand an unpaid card, tap it again, and confirm it opens that existing check. Verify changes appear at Reception and Kitchen as appropriate.
+5. Mark the kitchen item issued with **Видати все**. Confirm Kitchen moves the whole order to **Виконано** even while the bar item is pending; Bar keeps it in **Не видано**. Mark the bar item issued and confirm Bar moves the order to **Видано**. Before payment, expand the unpaid order card on Bar and tap it again to add the same drink; confirm the first line stays issued and a second unissued line brings the order back to **Не видано**. Then issue it and mark the order paid. Test the **Скасувати** snackbar after both actions, plus **Повернути** on issued lines and **Скасувати оплату** after the snackbar expires. Confirm unpaid cards appear first under Bar's **Видано**. Also test payment before fulfillment and fulfillment before payment.
+6. Upload a JPEG, PNG, or WebP photo for a menu item and a section in `/admin`; check both appear at Reception and Bar. Remove them and check the default dish image and folder icon appear.
+7. On a phone, check that **+ Новий чек** and **До чека** have equal dimensions above the menu tiles, **До чека** reaches the receipt, and **↑ Вгору** at its end returns to the top. Confirm that the mobile **Меню** heading and the Reception menu-item count are absent. Check that the compact Kitchen/Bar order tiles keep tile width, show `name хquantity` on the left, and place **➜ Видати все** and Bar's **💵 Оплатити** on the right.
+8. Create a second Event with an empty menu and select it in Admin. Check that all open clients show the second Event and no orders from the first. Switch back and confirm its menu and orders return. Try saving a stale check opened before the switch; it must be rejected.
+9. Turn off WAN/Internet while keeping local Wi-Fi active. Repeat the order test.
+10. Disconnect one client from Wi-Fi, create another order, reconnect it, and verify the list updates and the indicator returns to **Підключено**.
+11. Restart the server and verify the selected Event, menu, photos, and orders remain.
+
+If a phone cannot connect, check that it joined the same Wi-Fi, that the host firewall allows incoming connections to Python on port 8080, and that the Wi-Fi does not have **client isolation** enabled. Some phone hotspots or guest networks block device-to-device traffic; use a normal router or a hotspot that permits local connections. If port 8080 is already in use, first check whether an earlier instance of this app is still running and stop/restart that instance. If another program owns 8080, start with `python3 app.py --port 8081`; the printed address will use that port. Do not intentionally run two event servers against the same database. To use a different database location, pass `--data /path/to/orders.sqlite3`.
+
+The QR code uses ANSI black and white terminal backgrounds. If an IDE console does not display the blocks correctly, run the server in a normal terminal or type the printed address. A LAN test with your actual router/hotspot and devices is still necessary before the event; local automated tests cannot verify that hardware setup.

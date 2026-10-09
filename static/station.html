@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#19342d">
+  <title>Видача · Pop-up orders</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/undo.js"></script>
+  <script defer src="/event_context.js"></script>
+  <script defer src="/station.js"></script>
+  <script defer src="/bar_entry.js"></script>
+</head>
+<body data-page="station">
+  <header class="topbar">
+    <div><strong id="station-title">Видача</strong><span id="current-event" class="event-banner">Подія: завантаження…</span></div>
+    <div class="top-actions"><span id="connection" class="connection checking">Підключення…</span><a href="/reception">Рецепція</a><a href="/kitchen">Кухня</a><a href="/bar">Бар</a><a href="/admin">Адмінка</a></div>
+  </header>
+  <main class="station-layout">
+    <nav id="bar-tabs" class="workspace-tabs bar-tabs" aria-label="Робочі вкладки бару" hidden>
+      <button id="bar-tab-entry" class="workspace-tab" type="button" aria-selected="false">Створити замовлення</button>
+      <button id="bar-tab-fulfillment" class="workspace-tab active" type="button" aria-selected="true">Видача</button>
+    </nav>
+    <section id="bar-entry" class="panel bar-entry" hidden>
+      <div class="station-heading"><h2 id="bar-check-title">Нове замовлення</h2></div>
+      <div class="bar-entry-layout">
+        <div><p class="eyebrow">Меню</p><div id="bar-menu" class="bar-menu-grid"></div></div>
+        <div class="bar-cart"><p class="eyebrow">Поточний чек</p><div id="bar-cart-lines"></div><label class="order-comment-label" for="bar-comment">Коментар до замовлення</label><input id="bar-comment" class="order-comment-input" type="text" maxlength="40" autocomplete="off" placeholder="Наприклад, без льоду"><div class="total"><span>Разом</span><strong id="bar-total">0.00 ₴</strong></div><p id="bar-save-state" class="save-state">Оберіть першу позицію.</p><button id="bar-pay" class="pay-button full hidden" type="button">Оплатити</button><button id="bar-reload" class="secondary hidden" type="button">Завантажити поточну версію</button></div>
+      </div>
+    </section>
+    <div id="fulfillment-view" class="fulfillment-view">
+      <section class="station-section"><div class="station-heading"><h1>Не видано</h1><span id="active-count" class="count-pill">0</span></div><div id="active-orders" class="station-orders"></div></section>
+      <section class="station-section"><div class="station-heading"><h2>Видано</h2><span id="issued-count" class="count-pill">0</span></div><div id="issued-orders" class="station-orders"></div></section>
+    </div>
+  </main>
+</body>
+</html>

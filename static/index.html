@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#19342d">
+  <title>Чек · Pop-up orders</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/undo.js"></script>
+  <script defer src="/event_context.js"></script>
+  <script defer src="/pos.js"></script>
+</head>
+<body data-page="orders">
+  <header class="topbar">
+    <div><strong>Рецепція</strong><span id="current-event" class="event-banner">Подія: завантаження…</span></div>
+    <div class="top-actions"><span id="connection" class="connection checking">Підключення…</span><a href="/reception" aria-current="page">Рецепція</a><a href="/kitchen">Кухня</a><a href="/bar">Бар</a><a href="/admin">Адмінка</a></div>
+  </header>
+  <div id="network-hint" class="network-hint"></div>
+  <nav class="workspace-tabs" aria-label="Робочі вкладки">
+    <button id="tab-check" class="workspace-tab active" type="button" aria-selected="true">Чек</button>
+    <button id="tab-orders" class="workspace-tab" type="button" aria-selected="false">Замовлення <span id="tab-orders-count" class="tab-count">0</span></button>
+  </nav>
+  <main class="workspace">
+    <div id="check-view" class="check-layout">
+      <section class="panel receipt-panel">
+        <div class="panel-heading receipt-heading">
+          <div><p class="eyebrow">Поточний чек</p><h1 id="check-title">Новий чек</h1></div>
+          <span id="check-state" class="badge">Новий</span>
+        </div>
+        <div class="receipt-tools"><button id="new-check" class="secondary" type="button">+ Новий чек</button><span id="check-time" class="muted"></span></div>
+        <div class="receipt-columns"><span>Позиція</span><span>К-сть</span><span>Сума</span></div>
+        <div id="cart" class="receipt-lines"><p class="empty-state">Оберіть позиції з меню, щоб створити чек.</p></div>
+        <label class="order-comment-label" for="order-comment">Коментар до замовлення</label>
+        <input id="order-comment" class="order-comment-input" type="text" maxlength="40" autocomplete="off" placeholder="Наприклад, без льоду">
+        <div class="receipt-footer">
+          <div class="total"><span>Разом</span><strong id="total">0.00 ₴</strong></div>
+          <p id="save-state" class="save-state" role="status">Чек створиться після вибору першої позиції.</p>
+          <button id="paid-order" class="paid-button full hidden" type="button">Оплатити</button>
+          <button id="discard-changes" class="text-button hidden" type="button">Завантажити поточну версію</button>
+          <p id="order-message" class="message" role="status"></p>
+        </div>
+        <button id="back-to-top" class="secondary mobile-back-to-top" type="button">↑ Вгору</button>
+      </section>
+      <section id="menu-panel" class="panel menu-panel">
+        <div class="panel-heading menu-panel-heading"><div class="menu-heading-title"><p class="eyebrow">Додати до чека</p><h2>Меню</h2></div><button id="new-check-mobile" class="secondary" type="button">+ Новий чек</button><button id="jump-receipt" class="secondary mobile-receipt-shortcut" type="button">До чека · 0.00 ₴</button></div>
+        <div id="menu" class="menu-grid"><p class="muted">Завантаження меню…</p></div>
+      </section>
+    </div>
+    <section id="orders-view" class="panel orders-view" hidden>
+      <div class="panel-heading"><div><p class="eyebrow">Усі пристрої</p><h1>Замовлення</h1></div><span id="orders-count" class="muted"></span></div>
+      <p class="hint">Натисніть на замовлення, щоб відкрити його у вкладці «Чек».</p>
+      <div id="orders" class="order-list"><p class="muted">Завантаження замовлень…</p></div>
+    </section>
+  </main>
+</body>
+</html>
